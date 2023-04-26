@@ -9,4 +9,4 @@ Developed by [Ulyana Dupletsa](<https://github.com/u-dupletsa>), [Francesco Iaco
 
 Each notebook can be easily opened in Google Colab without the need to download locally any package. Here you can fing the links to open each notebook
 
-* ``gwfast``: [Notebook 1](<https://colab.research.google.com/github/FrancescoIacovelli/XIII_ET_Symposium_Hakathon/notebooks/gwfast_tutorial.ipynb>)
+* ``gwfast``: [Notebook 1](<https://colab.research.google.com/github/FrancescoIacovelli/XIII_ET_Symposium_Hakathon/blob/main/notebooks/gwfast_tutorial.ipynb>)
