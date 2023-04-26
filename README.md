@@ -1,5 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) 
 
+![alt text](<https://github.com/FrancescoIacovelli/XIII_ET_Symposium_Hakathon/blob/main/ET_Logo.png>)
+
 # XIII ET Symposium Hakathon
 Here you can find a collection of tutorial jupyter notebooks used during the hakathon session of the XIII ET Symposium to introduce some of the codes developed within the activities of the Division 9 of the ET Observational Science Board.
 
