@@ -3,6 +3,7 @@ format:
     html:
         code-fold: true
         bibliography: Symposium.bib
+        embed-resources: true
 ---
 
 # Fisher matrix for gravitational wave forecasting
