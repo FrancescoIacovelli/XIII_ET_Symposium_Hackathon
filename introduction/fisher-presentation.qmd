@@ -4,6 +4,10 @@ format:
         code-fold: true
         bibliography: Symposium.bib
         titlegraphic: ../data/logo.png
+        theme: boxes
+    html:
+        code-fold: true
+
 
 author: Francesco Iacovelli, Ulyana Dupletsa, Jacopo Tissino
 subtitle: XIII ET symposium hackathon
@@ -217,19 +221,6 @@ symbols = np.array([
     '$\\chi_{2z}$',
     '$\\widetilde{\\Lambda}$',
 ])
-# ['Mc',
-#  'dL',
-#  'theta',
-#  'phi',
-#  'iota',
-#  'psi',
-#  'tcoal',
-#  'eta',
-#  'Phicoal',
-#  'chi1z',
-#  'chi2z',
-#  'Lambda1',
-#  'Lambda2']
 cov = np.loadtxt('../data/gwfast_covariance.txt')
 
 reshuffle = [0, 1, 9, 10, 11, 2, 5, 3, 4, 6, 7, 8]
