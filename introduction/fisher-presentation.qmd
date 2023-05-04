@@ -5,18 +5,15 @@ format:
         bibliography: Symposium.bib
         titlegraphic: ../data/logo.png
         theme: boxes
-    html:
-        code-fold: true
 
-
-author: Francesco Iacovelli, Ulyana Dupletsa, Jacopo Tissino
+author: Jacopo Tissino, Ulyana Dupletsa, Francesco Iacovelli
 subtitle: XIII ET symposium hackathon
 date: 2023-05-09
 ---
 
 # Fisher matrix for gravitational wave forecasting
 
-> When we build Einstein Telescope, how many compact binary signals will it be able to see?
+> When we build Einstein Telescope, how many compact binary signals will it be able to detect?
 > How well will it localize them in the sky?
 > How well will it measure their parameters, such as the radii of neutron stars?
 
@@ -134,11 +131,14 @@ $$
 
 ---
 
-Sky area: 
-
-$$ \Delta \Omega \approx - 2 \pi \log(1 - 0.9) |\cos(\text{dec})| \sqrt{\sigma _{\text{ra}}^2 \sigma_{\text{dec}}^2 - \text{cov}_{\text{ra, dec}}^2} \times \left( \frac{180\ \text{deg}}{\pi\ \text{rad}}\right)^2
+$1 \sigma $ __sky area__ in steradians: 
+$$ \Delta \Omega _{1 \sigma} = 2 \pi |\cos(\text{dec})| \sqrt{\sigma _{\text{ra}}^2 \sigma_{\text{dec}}^2 - \text{cov}_{\text{ra, dec}}^2}
 $$
 
+$90%$ sky area, in square degrees:
+
+$$ \Delta \Omega_{90\%} \approx -  \log(1 - 0.9)  \Delta \Omega _{1 \sigma} \left( \frac{180\ \text{deg}}{\pi\ \text{rad}}\right)^2
+$$
 
 For GW170817, using the posterior covariance matrix, this approximation yields $28 \text{deg}^2$.
 
@@ -153,7 +153,7 @@ For GW170817, using the posterior covariance matrix, this approximation yields $
 
 ### Correlation structure
 
-We can compute correlation coefficients:
+We can compute Pearson correlation coefficients:
 $$ \rho_{ij} = \frac{\operatorname{cov}(\theta _i, \theta_j)}{\sigma_i \sigma_j}
 $$
 
@@ -234,8 +234,26 @@ plot_correlations(cov[np.ix_(reshuffle, reshuffle)], symbols[reshuffle])
 ### Antenna pattern
 
 The strain at the detector depends on the antenna pattern:
-$$ h(t) = h_{ij} (t) D_{ij}(t)\,.
+$$ h(t) = h_{ij} (t) D_{ij}(t) = h_+ (t) F_+ (t) + h_\times (t) F_\times (t) \,.
 $$
+
+---
+
+### Virgo antenna pattern
+
+```{python}
+from antenna_patterns import plot_antenna_pattern
+plot_antenna_pattern('V1')
+```
+
+---
+
+### One ET antenna pattern
+
+```{python}
+from antenna_patterns import plot_antenna_pattern
+plot_antenna_pattern('E1')
+```
 
 ---
 
@@ -255,13 +273,18 @@ This is a good approximation in the high-SNR limit.
 
 The Fisher matrix $\mathcal{F}_{ij}$ can be computed as the scalar product
 of the derivatives of waveforms: 
-$$ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{n = 0,\ \theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = 4 \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
+$$ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{\theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = 4 \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
 $$
 
 
 ---
 
-The covariance matrix can be evaluated in $\lesssim 1 \text{s}$, while 
+For $N$ detectors, 
+
+$$ \mathcal{F}_{ij} = \sum_{k = 1}^N \mathcal{F}_{ij}^{(k)} 
+$$
+
+The covariance matrix can be evaluated in seconds, while 
 full parameter estimation takes hours to weeks.
 
 Tricky step computationally: inverting $\mathcal{F}_{ij}$ to get $\mathcal{C}_{ij}$.
