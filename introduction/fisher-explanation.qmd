@@ -1,0 +1,487 @@
+---
+format:
+    html:
+        code-fold: true
+        bibliography: Symposium.bib
+---
+
+# Fisher matrix for gravitational wave forecasting
+
+![](../data/logo.png){fig-align="center"}
+
+> When we build Einstein Telescope, how many compact binary signals will it be able to see?
+> How well will it localize them in the sky?
+> How well will it measure their parameters, such as the radii of neutron stars?
+
+These are the questions that are being asked to us in order to 
+do cost-benefit analyses, and in general to estimate the performance
+of any potential future detector such as ET.
+
+## Gravitational wave data analysis
+
+When we measure gravitational wave data $d(t)$, we will have a contribution from noise $n(t)$ and signal
+$h_\theta(t)$, where $\theta$ are the parameters: $d = n + h_\theta$.
+We can estimate the parameters $\theta$ by exploring the posterior distribution 
+
+$$ p(\theta | d) = \mathcal{L}(d | \theta ) \pi (\theta ) = \mathcal{N} \exp \left( (d | h_\theta) - \frac{1}{2} (h_\theta | h_\theta) \right) \pi (\theta )\,,
+$$
+
+where $(\cdot | \cdot)$ is the noise-weighed inner product between waveforms, defined as 
+
+$$ (a | b) = 4 \Re \int_0^\infty \frac{a(f) b^*(f)}{S_n(f)}\text{d}f \,,
+$$
+
+while $\pi (\theta )$ is our prior distribution on the parameters.
+This kind of analysis is assuming that the noise is Gaussian, and described by the power spectral density (PSD) $S_n(f)$.
+
+This posterior, in full generality, is an arbitrary function
+of more than a dozen parameters, making it somewhat difficult to calculate and interpret.
+Typically, the algorithms used to compute it for real signals explore the parameter space in some stochastic manner, and yield a set of some thousands of samples $\lbrace\theta\rbrace_i$. 
+
+This makes it simple to compute summary statistics like the average of a parameter 
+$\langle \theta_i \rangle$, the variance $\sigma_i^2 = \langle (\theta_i- \langle \theta_i\rangle)^2 \rangle$, as 
+well as covariances $\mathcal{C}_{ij} =\langle (\theta_i- \langle \theta_i\rangle) (\theta_j- \langle \theta_j\rangle) \rangle = \langle \Delta \theta ^i \Delta \theta ^j\rangle$.
+
+At this stage, we are not making any approximation, and the 
+covariance matrix is just a summary tool. 
+
+These quantities give us an estimate of how well any given parameter is constrained, although
+they do not tell the whole story especially in the regime where the error $\sigma$ starts to be comparable 
+with the signal.
+For those cases, in general, if the posterior is available the best idea is to plot it; 
+this is typically done as a corner plot, which shows the correlations among different 
+parameters.
+
+## Signal-to-noise ratio
+
+The signal-to-noise ratio (SNR) statistic $\rho$ for the data $d$, assuming a template $h$, is 
+$\rho = (d | h) / \sqrt{(h|h)}$.
+This is the quantity that matched-filter signal searches attempt to maximize. 
+In general this will be given by $\rho = [(n|h) + (h|h)] / \sqrt{(h|h)}$, but if we are performing a forecast
+we cannot know in advance what the noise realization will be. Fortunately, the average contribution
+of the term $(n|h)$ is zero, so the expectation value is just $\rho \approx \sqrt{(h|h)}$. 
+
+This does not mean that we are neglecting the noise, since its _distribution_ $S_n$ is still taken 
+into account: for example, consider the behaviour under a global rescaling of the noise PSD: $\rho \propto 1 / \sqrt{S_n}$.
+At each frequency $f$ the noise is normally distributed, with variance $S_n(f)$ and mean zero,
+so we are just considering the mean value of the noise distribution. 
+
+### SNR thresholds
+
+If we were searching for a signal without any possible shift in time and with the certainty 
+that the noise did not contain any glitches or non-Gaussianities, then the SNR would simply follow
+a $\chi^2$ distribution with two degrees of freedom [@babakSearchingGravitationalWaves2013], 
+meaning that we could reach "five $\sigma$" significance ($p$-value of $5.7\times 10^{-7}$) 
+with a threshold of $\rho = 5.5$. 
+
+This is not the case in real data, since both the aforementioned assumptions are false:
+the different possible arrival times of a signal are effectively "more trials", but more importantly
+the non-Gaussianity of the noise means that high-SNR triggers in a matched filtering search will
+be much more common than simple Gaussian statistics would indicate.
+Accounting for these factors is tricky, and in real data it is typically accomplished 
+by performing time-slides: taking real detector data, but shifted across detectors by more than $t_{\text{min}} = d/c$, where $d$ is the maximum distance separating them.
+In the assumption that signals are rare (which holds for current detectors, for ET 
+this will have to be challenged), this allows us to generate arbitrary amounts of noise-only 
+realistic data by removing all possible coincidences.
+We can then compute the rate of noise instances surpassing our threshold, even if this rate
+is very low.
+With this, we can compute the false-alarm rate (FAR) associated to a given SNR threshold.
+It should also be noted that real searches also include other vetoes, such as requiring
+that each frequency band contributes appropriately to the SNR [@nitzRapidDetectionGravitational2018], which allows us to discard many loud glitches.
+
+The scaling of the FAR as a function of SNR, in the absence of large outliers, is typically exponential [@lynchObservationalImplicationsLowering2018]:
+$$ \text{FAR} = \text{FAR}_8 \exp \left( - \frac{\rho - 8}{\alpha}\right) \,.
+$$
+
+The specific values for the FAR at $\rho = 8$ and the scaling parameter $\alpha$ 
+are found through a fit, and they depend on the signal template.
+A fit of O1 data found $\alpha = 0.18$ and $\text{FAR}_8 = 5500 \text{yr}^{-1}$ for BBH, 
+and $\alpha = 0.13$ and $\text{FAR}_8 = 30000 \text{yr}^{-1}$ for BNS.
+This value of $\alpha$ means that the exponential cutoff is quite steep: 
+for example, bringing the BNS FAR from 30 thousand per year to just one 
+per year only requires us to raise the threshold to $\rho = 9.4$.
+
+### Forecasting SNR
+
+For the purposes of forecasting, then, what SNR threshold should we consider 
+as the minimum for detectability?
+We cannot know yet which glitches will affect our future detector, but 
+we can safely say that a threshold in the range of 8 to 10 is probably 
+acceptable.
+
+This quantity is easy to estimate and not too dependent on the 
+specifics of the waveform model: for one, it discards all phase information:
+
+$$ \text{SNR} = 2 \sqrt{\int_0^\infty \frac{|h(f)|^2}{S_n(f)} \text{d}f}
+$$
+
+and also waveform models for compact binaries differ significantly only in the 
+high-frequency region; for most of the inspiral the signal is decently
+modelled by a simple powerlaw $h\propto f^{-7/6}$, therefore the overall
+SNR integral is much more stable under changes of model than the parameter
+estimation forecasts we will discuss later.
+
+## Parameter dependence of CBC signals
+
+The signal $h_\theta(t)$ (or in the Fourier domain, $h_\theta (f)$) depends on several parameters, both intrinsic
+(describing the source itself) and extrinsic (describing the geometrical relation
+between detector and source).
+Here I will describe these parameters and also give an example 
+of the error with which they are measured in the case of GW170817.
+For most of them I will quote the figure $\sigma _x / x$, meaning the 
+standard deviation of the posterior samples normalized to the value of
+the parameter $x$.
+
+For the purposes of this section, I will not show Fisher matrix results 
+but actual variances, covariances et cetera computed from the samples
+of a full parameter estimation of GW170817.
+
+### Intrinsic parameters
+
+We can measure the component __masses__ $m_1$ and $m_2$ with reasonable accuracy ($\sigma _x / x \sim 10\%$), but their combination called _chirp mass_ $\mathcal{M}$ and defined as follows:
+
+$$ \mathcal{M} = \frac{(m_1 m_2 )^{3/5}}{(m_1 + m_2)^{1/5}}
+$$
+
+is measured to much higher accuracy ($\sigma _x / x \sim 0.1\%$).
+This is because it affects the overall phasing of the signal, meaning that 
+small changes in it will bring the signal-to-noise ratio very quickly.
+
+On the other hand, the ratio between the masses, $q = m_1 / m_2$, is measured to worse accuracy than the masses themselves ($\sigma _x / x \sim 20\%$).
+An alternative parametrization for the mass ratio is the _symmetric_ mass ratio, $\nu = \mu / M = q / (1+q)^2$
+where $\mu = m_1 m_2 / M$ is the reduced mass while $M = m_1 + m_2$ is the total mass.
+These are measured with relative errors $\sigma _M / M \sim 3\%$ and $\sigma _\nu / \nu \sim 4\%$ respectively.
+
+The chirp mass we are measuring with such precision is the so-called _detector-frame_ mass,
+which for a source at __redshift__ $z$ corresponds to 
+$$ \mathcal{M} = \mathcal{M}_{\text{source}} ( 1 + z )
+$$
+
+The signal only depends on this combination, and there is no way from the 
+gravitational signal itself to disentangle source-frame mass from redshift.
+
+Higher-order source properties are more difficult to measure: for typical 
+analyses of GW170817, spin and tidal effects were included. 
+
+As for spin, the components of the __spin__ of each star aligned to the orbital angular
+momentum, $\chi _{1z}$ and $\chi _{2z}$ were definitely not well-measured, with $\sigma _x / x \sim 3$ and 10 respectively.
+
+In comparison, the effective spin parameter $\chi _{\text{eff}} = (m_1 \chi _{1z} + m_2 \chi _{2z} )/(m_1 + m_2)$ was 
+better constrained, with $\sigma _x / x \sim 1$ (although quoting this figure is 
+not that meaningful here, since it was found to be compatible with zero [@theligoscientificcollaborationPropertiesBinaryNeutron2019]).
+
+The precessing spin $\xi _p$ was also not well-constrained.
+
+Similarly, the __tidal parameters__ $\Lambda _1$ and $\Lambda _2$, were not as well-constrained ($\sigma _x / x \sim 1.5$)
+as the effective tidal parameter $\widetilde{\Lambda}$ ($\sigma_x / x \sim 0.6$).
+
+The tidal polarizability is defined as [@damourMeasurabilityTidalPolarizability2012]:
+
+$$ \Lambda_i = \frac{2}{3} \kappa_2 \left( \frac{R_i c^2}{G m_i}\right)^5
+$$
+
+and it measures to which extent the deformation of a compact star enhances the 
+gravitational potential.
+
+The reduced tidal parameter, on the other hand, is defined as 
+
+$$ \widetilde{\Lambda} = \frac{16}{13} \frac{(m_1 + 12 m_2 ) m_1^4 \Lambda_1 + (m_2 + 12 m_1 ) m_2^4 \Lambda_2 }{(m_1 + m_2 ^5)}
+$$
+
+which reduces to $\Lambda_1 + \Lambda_2$ if the masses are equal. 
+
+### Extrinsic parameters
+
+The signal's overall amplitude depends on the source (luminosity) __distance__ $d_L$
+as $h \propto 1 / d_L$, and because of 
+this we are able to measure it with some accuracy ($\sigma _x / x \sim 20\%$).
+
+This parameter is, however, degenerate with the __inclination__ of the source, $\iota$ ---
+this is the angle between the orbital angular momentum of the binary and the 
+vector connecting detector and source. 
+A source for which $\iota$ is close to zero or to $\pi$ is said to be _face-on_, 
+while a source for which $\iota$ is close to $\pi/2$ is said to be _edge-on_.
+
+This parameter degenerates with the distance since both affect the amplitude;
+for the latter, the two polarizations for the highest-order spherical harmonic of gravitational wave emission scale like $h_+ \propto (1 + \cos^2 \iota)$ and $h_\times \propto \cos \iota$. 
+
+The remaining extrinsic parameters
+are the __arrival time__ at geocenter $t_\oplus$, the overall free __phase__ $\phi$, the __polarization__
+angle $\psi$, and finally the __sky position__ $(\text{ra}, \text{dec})$.
+
+Typically we do not actually care about the errors in the sky coordinates themselves 
+(which for reference would be 2 and 9 degrees respectively) but about 
+the area within which we can localize the signal: 
+this quantity is the minimal area that can be chosen such that the probability
+that the signal lies in that area is $X$, where $X$ is often conventionally chosen to be $90\%$.
+For GW170817, this area was roughly $\Delta \Omega_{90\%} \approx 28 \text{deg}^2$.
+Since this value is relatively small, it can also be obtained in the Gaussian approximation: 
+$$ \Delta \Omega_{90\%} \approx - 2 \pi \log(1 - 0.9) |\cos(\text{dec})| \sqrt{\sigma _{\text{ra}}^2 \sigma_{\text{dec}}^2 - \text{cov}_{\text{ra, dec}}^2} \times \left( \frac{180\ \text{deg}}{\pi\ \text{rad}}\right)^2
+$$
+
+
+```{python}
+import numpy as np
+
+def ninety_percent_region(sigma_ra, sigma_dec, cov_ra_dec, dec):
+
+    delta_omega = np.abs(np.cos(dec)) * np.sqrt(
+        sigma_ra**2 * sigma_dec**2
+        - cov_ra_dec**2
+    )
+    return - delta_omega * 2 * np.pi * (180/np.pi)**2 * np.log(1 - .9)
+
+sigma_ra = 0.0279
+sigma_dec = 0.0377
+cov_ra_dec = -0.00084
+dec = -0.354
+ra = 3.419
+
+
+print(
+    f'The 90% localization area for GW170817, in the Gaussian approximation, \n'
+    f'is {ninety_percent_region(sigma_ra, sigma_dec, cov_ra_dec, dec):.0f} square degrees')
+```
+
+::: {.callout-note}
+#### GW150914 comparison
+
+The errors given before were for the neutron star binary GW170817,
+but things change somewhat in the case of a black hole binary. 
+Here I show the case of GW150914. One can see that here, due to the much smaller 
+number of cycles in band, the chirp mass is not better-measured than the total mass.
+Also, given the large sky area and the fact that this was a two-detector
+event, the Gaussian approximation fails in computing the sky area.
+
+```{python}
+import h5py
+import numpy as np
+
+def print_posterior_statistics(data_dict):
+    data_dict['mchirp'] = (
+        data_dict['mass1_det'] * data_dict['mass2_det']
+        )**(3/5) / (data_dict['mass1_det'] + data_dict['mass2_det'])**(1/5)
+
+    data_dict['mtot'] = (
+        data_dict['mass1_det'] + data_dict['mass2_det']
+        )
+
+    units_errors = {
+        'time': 's',
+        'right_ascension': 'rad',
+        'declination': 'rad',
+        'theta_jn': 'rad',
+    }
+
+    for key in data_dict:
+        data = data_dict[key]
+        if key in units_errors:
+            print(
+                f'sigma_{key}: '
+                f'{np.std(data):.3f} {units_errors[key]}'
+            )
+        else:
+            print(
+                f'sigma_{key} / {key}: '
+                f'{np.std(data) / np.median(data):.3f}'
+            )
+
+    region = ninety_percent_region(
+            np.std(data_dict["right_ascension"]), 
+            np.std(data_dict["declination"]), 
+            np.cov(
+                data_dict["right_ascension"],
+                data_dict["declination"],
+            )[0, 1], 
+            np.median(data_dict["declination"]))
+
+    print(
+        f'The 90% localization area for GW150914, in the Gaussian approximation, \n'
+        f'is {region:.0f} square degrees, \n'
+        'while the true one was approximately 600 square degrees'
+    )
+
+try:
+    f = h5py.File('../data/GW150914_data.h5')
+    dataset = f['overall_post']
+    data_dict = {}
+    for key in dataset.dtype.fields.keys():
+        data_dict[key] = dataset[key]
+    print_posterior_statistics(data_dict)
+except FileNotFoundError:
+    print('GW150914 posterior not available - download it from https://dcc.ligo.org/LIGO-T1800235/public')
+    print('and save it to the data/ folder as "GW150914_data.h5"')
+```
+
+:::
+
+### Correlation structure
+
+For each pair of parameters $\theta_i$, $\theta_j$ we select after running a parameter estimation job,
+we will be able to compute their correlation coefficient, which is their correlation normalized to their standard deviations:
+$$ \rho_{ij} = \frac{\operatorname{cov}(\theta _i, \theta_j)}{\sigma_i \sigma_j}
+$$
+
+This number will always lie between -1 and 1, with values near these extremes 
+representing near-perfect (anti)correlation, while values near 0 represent uncorrelated
+variables.
+This only captures _linear_ correlations, so it does not tell the whole story, 
+but it is still quite useful in understanding which parameters are generally 
+to be understood as correlated or not.
+
+```{python}
+#| label: fig-correlation-matrix
+#| fig-cap: "Correlations between some measured parameters for GW170817. $c_{AL1}$ and $c_{\\phi L1}$ are two calibration parameters for the Livingston detector, included for reference, out of the $\\sim$ 12 calibration parameters per detector used in real analyses. Arrival time and overall phase are not included since they were analytically marginalized in this particular analysis."
+
+# we start from the covariance matrix for an analysis of GW170817
+# this is included in the auxiliary data for convenience
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+from matplotlib import ticker
+
+def plot_correlations(cov, symbols):
+    n = len(symbols)
+
+    sigmas = np.sqrt(np.diagonal(cov))
+    correlations = cov / np.kron(sigmas, sigmas).reshape(n, n)
+
+    cmap = plt.get_cmap('RdBu')
+    normalization = Normalize(-1, 1)
+    fig, axes = plt.subplots(figsize=(10, 6))
+    axes.matshow(correlations, cmap=cmap, norm=normalization)
+    for axis in [axes.xaxis, axes.yaxis]:
+        axis.set_major_locator(ticker.FixedLocator(np.arange(n)))
+        axis.set_major_formatter(ticker.FixedFormatter(symbols))
+    plt.colorbar(ScalarMappable(cmap=cmap, norm=normalization), ax=axes)
+    plt.show()
+
+symbols = [
+    '$\\mathcal{M}$',
+    '$q$',
+    '$\\chi_1$',
+    '$\\chi_2$',
+    '$\\Lambda_1$',
+    '$\\Lambda_2$',
+    '$d_L$',
+    '$\\cos \\iota$',
+    'ra',
+    'dec',
+    '$\psi$',
+    '$c_{AL1}$',
+    '$c_{\phi L1}$',
+]
+cov = np.loadtxt('../data/covariance_170817.txt')
+plot_correlations(cov, symbols)
+```
+
+In @fig-correlation-matrix we see the structure of the correlation matrix for an actual analysis of GW170817
+(specifically, the one from @tissinoCombiningEffectiveonebodyAccuracy2022).
+
+Note the important qualitative feature that the extrinsic parameters are overall uncorrelated 
+from the intrinsic ones. 
+This is qualitatively due to the fact that the extrinsic parameters are generally measured by _inter-detector_ amplitude
+and time of arrival _differences_, while intrinsic parameters are generally measured by _averages_ of amplitude
+and phase [@singerRapidBayesianPosition2016].
+
+```{python}
+symbols = np.array([
+    '$\\mathcal{M}$',
+    '$\\eta$',
+    '$d_L$',
+    '$\\theta$',
+    'ra',
+    '$\\iota$',
+    '$\\psi$',
+    '$t_{\\mathrm{coal}}$',
+    '$\\phi_{\\mathrm{coal}}$',
+    '$\\chi_{1z}$',
+    '$\\chi_{2z}$',
+    '$\\widetilde{\\Lambda}$',
+])
+
+cov = np.loadtxt('../data/gwfast_covariance.txt')
+
+reshuffle = [0, 1, 9, 10, 11, 2, 5, 3, 4, 6, 7, 8]
+
+plot_correlations(cov[np.ix_(reshuffle, reshuffle)], symbols[reshuffle])
+
+```
+
+### Antenna pattern
+
+The strain at the detector, $h(t)$, depends on the gravitational-wave
+strain $h_{ij}(t)$ through contraction with a __detection tensor__ $D_{ij}$,
+which depends on the orientation and shape of the detector's arms: 
+$$ h(t) = h_{ij} (t) D_{ij}(t)\,.
+$$
+
+For current detectors the time dependence of $D_{ij}$ is negligible, 
+since the signal is in band for minutes at most, while for ET
+this will have to be taken into account.
+The Fisher matrix is typically computed in the frequency domain, which makes 
+the computation trickier, but still feasible (see section 3.2 of
+@iacovelliForecastingDetectionCapabilities2022 for more details).
+
+## Fisher matrix
+
+In the Fisher matrix approximation, we are considering the 
+gravitational wave likelihood as if it was written like 
+
+$$ \mathcal{L}(d | \theta) \approx \mathcal{N} \exp \left(- \frac{1}{2} \Delta \theta^i \mathcal{F}_{ij} \Delta \theta^j \right)
+$$
+
+for some normalization $\mathcal{N}$, where $\Delta \theta^i = \theta ^i - \langle \theta ^i \rangle$ denotes the deviation of the parameters from their mean values and where we are using the Einstein summation convention.
+
+This is the expression of a multivariate normal distribution, with covariance matrix $\mathcal{C}_{ij} = \mathcal{F}_{ij}^{-1}$.
+
+The Fisher matrix $\mathcal{F}_{ij}$ can be computed as the scalar product
+of the derivatives of waveforms: 
+$$ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{n = 0,\ \theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
+$$
+
+These derivatives may be computed numerically or analytically (@dupletsaGwfishSimulationSoftware2023, @iacovelliForecastingDetectionCapabilities2022).
+Crucially, the computation is quite fast, typically taking less than a second.
+
+### Derivation
+
+For a more in-depth derivation refer to @finnDetectionMeasurementGravitational1992a; here we just give a simple argument.
+We can rewrite the derivatives of the log-likelihood as follows:
+
+$$ \begin{aligned}
+\partial_i \partial_j \log \mathcal{L} &= \frac{1}{2} \partial_i \partial_j (d-h|d-h) \\
+&= \frac{1}{2} \partial_i \partial_j \left((d|d) - 2 (d|h) + (h|h)\right) \\
+&=  \partial_i \left(-  (d|\partial_j h) + (\partial_j h|h)\right) \\
+&=  \left(-  (d|\partial_i \partial_j h) + (\partial_i \partial_j h|h) + (\partial_i h | \partial_j h)\right) \\
+&=  -(n|\partial_i \partial_j h)  + (\partial_i h | \partial_j h) 
+\end{aligned}
+$$
+
+and then, since we are evaluating this quantity at the maximum-likelihood realization of the noise $n = 0$, the term $(n|\partial_i \partial_j h)$ is equal to zero.
+
+
+
+### Conditioning versus marginalizing
+
+It is important to include all parameters when performing a Fisher matrix analysis.
+This is because not including a parameter which correlates to the one we care about in 
+the Fisher analysis is equivalent to __conditioning__ upon it having that specific value, 
+while the correct operation to be performed is __marginalizing__ over all possible values.
+
+Here is a graphical way to see the difference between conditioning and marginalizing 
+for correlated variables.
+
+```{python}
+from multivariate_normal import MultivariateNormal
+n = MultivariateNormal([0, 0], [[1, 0.8], [0.8, 1]])
+n.plot_2d_analytical(0, 0, .9)
+```
+
+When dealing with the _correlation matrix_ marginalizing 
+simply amounts to ignoring some parameters, but crucially
+in the _Fisher matrix_ this is not the case, since the 
+inversion introduces mixing between the parameters.
+
+<!-- ## References -->
