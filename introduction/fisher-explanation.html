@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.333">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>fisher-explanation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="fisher-explanation_files/libs/clipboard/clipboard.min.js"></script>
+<script src="fisher-explanation_files/libs/quarto-html/quarto.js"></script>
+<script src="fisher-explanation_files/libs/quarto-html/popper.min.js"></script>
+<script src="fisher-explanation_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="fisher-explanation_files/libs/quarto-html/anchor.min.js"></script>
+<link href="fisher-explanation_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="fisher-explanation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="fisher-explanation_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="fisher-explanation_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="fisher-explanation_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Fisher matrix for gravitational wave forecasting</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../data/logo.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p>When we build Einstein Telescope, how many compact binary signals will it be able to see? How well will it localize them in the sky? How well will it measure their parameters, such as the radii of neutron stars?</p>
+</blockquote>
+<p>These are the questions that are being asked to us in order to do cost-benefit analyses, and in general to estimate the performance of any potential future detector such as ET.</p>
+<section id="gravitational-wave-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="gravitational-wave-data-analysis">Gravitational wave data analysis</h2>
+<p>When we measure gravitational wave data <span class="math inline">\(d(t)\)</span>, we will have a contribution from noise <span class="math inline">\(n(t)\)</span> and signal <span class="math inline">\(h_\theta(t)\)</span>, where <span class="math inline">\(\theta\)</span> are the parameters: <span class="math inline">\(d = n + h_\theta\)</span>. We can estimate the parameters <span class="math inline">\(\theta\)</span> by exploring the posterior distribution</p>
+<p><span class="math display">\[ p(\theta | d) = \mathcal{L}(d | \theta ) \pi (\theta ) = \mathcal{N} \exp \left( (d | h_\theta) - \frac{1}{2} (h_\theta | h_\theta) \right) \pi (\theta )\,,
+\]</span></p>
+<p>where <span class="math inline">\((\cdot | \cdot)\)</span> is the noise-weighed inner product between waveforms, defined as</p>
+<p><span class="math display">\[ (a | b) = 4 \Re \int_0^\infty \frac{a(f) b^*(f)}{S_n(f)}\text{d}f \,,
+\]</span></p>
+<p>while <span class="math inline">\(\pi (\theta )\)</span> is our prior distribution on the parameters. This kind of analysis is assuming that the noise is Gaussian, and described by the power spectral density (PSD) <span class="math inline">\(S_n(f)\)</span>.</p>
+<p>This posterior, in full generality, is an arbitrary function of more than a dozen parameters, making it somewhat difficult to calculate and interpret. Typically, the algorithms used to compute it for real signals explore the parameter space in some stochastic manner, and yield a set of some thousands of samples <span class="math inline">\(\lbrace\theta\rbrace_i\)</span>.</p>
+<p>This makes it simple to compute summary statistics like the average of a parameter <span class="math inline">\(\langle \theta_i \rangle\)</span>, the variance <span class="math inline">\(\sigma_i^2 = \langle (\theta_i- \langle \theta_i\rangle)^2 \rangle\)</span>, as well as covariances <span class="math inline">\(\mathcal{C}_{ij} =\langle (\theta_i- \langle \theta_i\rangle) (\theta_j- \langle \theta_j\rangle) \rangle = \langle \Delta \theta ^i \Delta \theta ^j\rangle\)</span>.</p>
+<p>At this stage, we are not making any approximation, and the covariance matrix is just a summary tool.</p>
+<p>These quantities give us an estimate of how well any given parameter is constrained, although they do not tell the whole story especially in the regime where the error <span class="math inline">\(\sigma\)</span> starts to be comparable with the signal. For those cases, in general, if the posterior is available the best idea is to plot it; this is typically done as a corner plot, which shows the correlations among different parameters.</p>
+</section>
+<section id="signal-to-noise-ratio" class="level2">
+<h2 class="anchored" data-anchor-id="signal-to-noise-ratio">Signal-to-noise ratio</h2>
+<p>The signal-to-noise ratio (SNR) statistic <span class="math inline">\(\rho\)</span> for the data <span class="math inline">\(d\)</span>, assuming a template <span class="math inline">\(h\)</span>, is <span class="math inline">\(\rho = (d | h) / \sqrt{(h|h)}\)</span>. This is the quantity that matched-filter signal searches attempt to maximize. In general this will be given by <span class="math inline">\(\rho = [(n|h) + (h|h)] / \sqrt{(h|h)}\)</span>, but if we are performing a forecast we cannot know in advance what the noise realization will be. Fortunately, the average contribution of the term <span class="math inline">\((n|h)\)</span> is zero, so the expectation value is just <span class="math inline">\(\rho \approx \sqrt{(h|h)}\)</span>.</p>
+<p>This does not mean that we are neglecting the noise, since its <em>distribution</em> <span class="math inline">\(S_n\)</span> is still taken into account: for example, consider the behaviour under a global rescaling of the noise PSD: <span class="math inline">\(\rho \propto 1 / \sqrt{S_n}\)</span>. At each frequency <span class="math inline">\(f\)</span> the noise is normally distributed, with variance <span class="math inline">\(S_n(f)\)</span> and mean zero, so we are just considering the mean value of the noise distribution.</p>
+<section id="snr-thresholds" class="level3">
+<h3 class="anchored" data-anchor-id="snr-thresholds">SNR thresholds</h3>
+<p>If we were searching for a signal without any possible shift in time and with the certainty that the noise did not contain any glitches or non-Gaussianities, then the SNR would simply follow a <span class="math inline">\(\chi^2\)</span> distribution with two degrees of freedom <span class="citation" data-cites="babakSearchingGravitationalWaves2013">(<a href="#ref-babakSearchingGravitationalWaves2013" role="doc-biblioref">Babak et al. 2013</a>)</span>, meaning that we could reach “five <span class="math inline">\(\sigma\)</span>” significance (<span class="math inline">\(p\)</span>-value of <span class="math inline">\(5.7\times 10^{-7}\)</span>) with a threshold of <span class="math inline">\(\rho = 5.5\)</span>.</p>
+<p>This is not the case in real data, since both the aforementioned assumptions are false: the different possible arrival times of a signal are effectively “more trials”, but more importantly the non-Gaussianity of the noise means that high-SNR triggers in a matched filtering search will be much more common than simple Gaussian statistics would indicate. Accounting for these factors is tricky, and in real data it is typically accomplished by performing time-slides: taking real detector data, but shifted across detectors by more than <span class="math inline">\(t_{\text{min}} = d/c\)</span>, where <span class="math inline">\(d\)</span> is the maximum distance separating them. In the assumption that signals are rare (which holds for current detectors, for ET this will have to be challenged), this allows us to generate arbitrary amounts of noise-only realistic data by removing all possible coincidences. We can then compute the rate of noise instances surpassing our threshold, even if this rate is very low. With this, we can compute the false-alarm rate (FAR) associated to a given SNR threshold. It should also be noted that real searches also include other vetoes, such as requiring that each frequency band contributes appropriately to the SNR <span class="citation" data-cites="nitzRapidDetectionGravitational2018">(<a href="#ref-nitzRapidDetectionGravitational2018" role="doc-biblioref">Nitz et al. 2018</a>)</span>, which allows us to discard many loud glitches.</p>
+<p>The scaling of the FAR as a function of SNR, in the absence of large outliers, is typically exponential <span class="citation" data-cites="lynchObservationalImplicationsLowering2018">(<a href="#ref-lynchObservationalImplicationsLowering2018" role="doc-biblioref">Lynch et al. 2018</a>)</span>: <span class="math display">\[ \text{FAR} = \text{FAR}_8 \exp \left( - \frac{\rho - 8}{\alpha}\right) \,.
+\]</span></p>
+<p>The specific values for the FAR at <span class="math inline">\(\rho = 8\)</span> and the scaling parameter <span class="math inline">\(\alpha\)</span> are found through a fit, and they depend on the signal template. A fit of O1 data found <span class="math inline">\(\alpha = 0.18\)</span> and <span class="math inline">\(\text{FAR}_8 = 5500 \text{yr}^{-1}\)</span> for BBH, and <span class="math inline">\(\alpha = 0.13\)</span> and <span class="math inline">\(\text{FAR}_8 = 30000 \text{yr}^{-1}\)</span> for BNS. This value of <span class="math inline">\(\alpha\)</span> means that the exponential cutoff is quite steep: for example, bringing the BNS FAR from 30 thousand per year to just one per year only requires us to raise the threshold to <span class="math inline">\(\rho = 9.4\)</span>.</p>
+</section>
+<section id="forecasting-snr" class="level3">
+<h3 class="anchored" data-anchor-id="forecasting-snr">Forecasting SNR</h3>
+<p>For the purposes of forecasting, then, what SNR threshold should we consider as the minimum for detectability? We cannot know yet which glitches will affect our future detector, but we can safely say that a threshold in the range of 8 to 10 is probably acceptable.</p>
+<p>This quantity is easy to estimate and not too dependent on the specifics of the waveform model: for one, it discards all phase information:</p>
+<p><span class="math display">\[ \text{SNR} = 2 \sqrt{\int_0^\infty \frac{|h(f)|^2}{S_n(f)} \text{d}f}
+\]</span></p>
+<p>and also waveform models for compact binaries differ significantly only in the high-frequency region; for most of the inspiral the signal is decently modelled by a simple powerlaw <span class="math inline">\(h\propto f^{-7/6}\)</span>, therefore the overall SNR integral is much more stable under changes of model than the parameter estimation forecasts we will discuss later.</p>
+</section>
+</section>
+<section id="parameter-dependence-of-cbc-signals" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-dependence-of-cbc-signals">Parameter dependence of CBC signals</h2>
+<p>The signal <span class="math inline">\(h_\theta(t)\)</span> (or in the Fourier domain, <span class="math inline">\(h_\theta (f)\)</span>) depends on several parameters, both intrinsic (describing the source itself) and extrinsic (describing the geometrical relation between detector and source). Here I will describe these parameters and also give an example of the error with which they are measured in the case of GW170817. For most of them I will quote the figure <span class="math inline">\(\sigma _x / x\)</span>, meaning the standard deviation of the posterior samples normalized to the value of the parameter <span class="math inline">\(x\)</span>.</p>
+<p>For the purposes of this section, I will not show Fisher matrix results but actual variances, covariances et cetera computed from the samples of a full parameter estimation of GW170817.</p>
+<section id="intrinsic-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="intrinsic-parameters">Intrinsic parameters</h3>
+<p>We can measure the component <strong>masses</strong> <span class="math inline">\(m_1\)</span> and <span class="math inline">\(m_2\)</span> with reasonable accuracy (<span class="math inline">\(\sigma _x / x \sim 10\%\)</span>), but their combination called <em>chirp mass</em> <span class="math inline">\(\mathcal{M}\)</span> and defined as follows:</p>
+<p><span class="math display">\[ \mathcal{M} = \frac{(m_1 m_2 )^{3/5}}{(m_1 + m_2)^{1/5}}
+\]</span></p>
+<p>is measured to much higher accuracy (<span class="math inline">\(\sigma _x / x \sim 0.1\%\)</span>). This is because it affects the overall phasing of the signal, meaning that small changes in it will bring the signal-to-noise ratio very quickly.</p>
+<p>On the other hand, the ratio between the masses, <span class="math inline">\(q = m_1 / m_2\)</span>, is measured to worse accuracy than the masses themselves (<span class="math inline">\(\sigma _x / x \sim 20\%\)</span>). An alternative parametrization for the mass ratio is the <em>symmetric</em> mass ratio, <span class="math inline">\(\nu = \mu / M = q / (1+q)^2\)</span> where <span class="math inline">\(\mu = m_1 m_2 / M\)</span> is the reduced mass while <span class="math inline">\(M = m_1 + m_2\)</span> is the total mass. These are measured with relative errors <span class="math inline">\(\sigma _M / M \sim 3\%\)</span> and <span class="math inline">\(\sigma _\nu / \nu \sim 4\%\)</span> respectively.</p>
+<p>The chirp mass we are measuring with such precision is the so-called <em>detector-frame</em> mass, which for a source at <strong>redshift</strong> <span class="math inline">\(z\)</span> corresponds to <span class="math display">\[ \mathcal{M} = \mathcal{M}_{\text{source}} ( 1 + z )
+\]</span></p>
+<p>The signal only depends on this combination, and there is no way from the gravitational signal itself to disentangle source-frame mass from redshift.</p>
+<p>Higher-order source properties are more difficult to measure: for typical analyses of GW170817, spin and tidal effects were included.</p>
+<p>As for spin, the components of the <strong>spin</strong> of each star aligned to the orbital angular momentum, <span class="math inline">\(\chi _{1z}\)</span> and <span class="math inline">\(\chi _{2z}\)</span> were definitely not well-measured, with <span class="math inline">\(\sigma _x / x \sim 3\)</span> and 10 respectively.</p>
+<p>In comparison, the effective spin parameter <span class="math inline">\(\chi _{\text{eff}} = (m_1 \chi _{1z} + m_2 \chi _{2z} )/(m_1 + m_2)\)</span> was better constrained, with <span class="math inline">\(\sigma _x / x \sim 1\)</span> (although quoting this figure is not that meaningful here, since it was found to be compatible with zero <span class="citation" data-cites="theligoscientificcollaborationPropertiesBinaryNeutron2019">(<a href="#ref-theligoscientificcollaborationPropertiesBinaryNeutron2019" role="doc-biblioref">Collaboration et al. 2019</a>)</span>).</p>
+<p>The precessing spin <span class="math inline">\(\xi _p\)</span> was also not well-constrained.</p>
+<p>Similarly, the <strong>tidal parameters</strong> <span class="math inline">\(\Lambda _1\)</span> and <span class="math inline">\(\Lambda _2\)</span>, were not as well-constrained (<span class="math inline">\(\sigma _x / x \sim 1.5\)</span>) as the effective tidal parameter <span class="math inline">\(\widetilde{\Lambda}\)</span> (<span class="math inline">\(\sigma_x / x \sim 0.6\)</span>).</p>
+<p>The tidal polarizability is defined as <span class="citation" data-cites="damourMeasurabilityTidalPolarizability2012">(<a href="#ref-damourMeasurabilityTidalPolarizability2012" role="doc-biblioref">Damour, Nagar, and Villain 2012</a>)</span>:</p>
+<p><span class="math display">\[ \Lambda_i = \frac{2}{3} \kappa_2 \left( \frac{R_i c^2}{G m_i}\right)^5
+\]</span></p>
+<p>and it measures to which extent the deformation of a compact star enhances the gravitational potential.</p>
+<p>The reduced tidal parameter, on the other hand, is defined as</p>
+<p><span class="math display">\[ \widetilde{\Lambda} = \frac{16}{13} \frac{(m_1 + 12 m_2 ) m_1^4 \Lambda_1 + (m_2 + 12 m_1 ) m_2^4 \Lambda_2 }{(m_1 + m_2 ^5)}
+\]</span></p>
+<p>which reduces to <span class="math inline">\(\Lambda_1 + \Lambda_2\)</span> if the masses are equal.</p>
+</section>
+<section id="extrinsic-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="extrinsic-parameters">Extrinsic parameters</h3>
+<p>The signal’s overall amplitude depends on the source (luminosity) <strong>distance</strong> <span class="math inline">\(d_L\)</span> as <span class="math inline">\(h \propto 1 / d_L\)</span>, and because of this we are able to measure it with some accuracy (<span class="math inline">\(\sigma _x / x \sim 20\%\)</span>).</p>
+<p>This parameter is, however, degenerate with the <strong>inclination</strong> of the source, <span class="math inline">\(\iota\)</span> — this is the angle between the orbital angular momentum of the binary and the vector connecting detector and source. A source for which <span class="math inline">\(\iota\)</span> is close to zero or to <span class="math inline">\(\pi\)</span> is said to be <em>face-on</em>, while a source for which <span class="math inline">\(\iota\)</span> is close to <span class="math inline">\(\pi/2\)</span> is said to be <em>edge-on</em>.</p>
+<p>This parameter degenerates with the distance since both affect the amplitude; for the latter, the two polarizations for the highest-order spherical harmonic of gravitational wave emission scale like <span class="math inline">\(h_+ \propto (1 + \cos^2 \iota)\)</span> and <span class="math inline">\(h_\times \propto \cos \iota\)</span>.</p>
+<p>The remaining extrinsic parameters are the <strong>arrival time</strong> at geocenter <span class="math inline">\(t_\oplus\)</span>, the overall free <strong>phase</strong> <span class="math inline">\(\phi\)</span>, the <strong>polarization</strong> angle <span class="math inline">\(\psi\)</span>, and finally the <strong>sky position</strong> <span class="math inline">\((\text{ra}, \text{dec})\)</span>.</p>
+<p>Typically we do not actually care about the errors in the sky coordinates themselves (which for reference would be 2 and 9 degrees respectively) but about the area within which we can localize the signal: this quantity is the minimal area that can be chosen such that the probability that the signal lies in that area is <span class="math inline">\(X\)</span>, where <span class="math inline">\(X\)</span> is often conventionally chosen to be <span class="math inline">\(90\%\)</span>. For GW170817, this area was roughly <span class="math inline">\(\Delta \Omega_{90\%} \approx 28 \text{deg}^2\)</span>. Since this value is relatively small, it can also be obtained in the Gaussian approximation: <span class="math display">\[ \Delta \Omega_{90\%} \approx - 2 \pi \log(1 - 0.9) |\cos(\text{dec})| \sqrt{\sigma _{\text{ra}}^2 \sigma_{\text{dec}}^2 - \text{cov}_{\text{ra, dec}}^2} \times \left( \frac{180\ \text{deg}}{\pi\ \text{rad}}\right)^2
+\]</span></p>
+<div class="cell" data-execution_count="1">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ninety_percent_region(sigma_ra, sigma_dec, cov_ra_dec, dec):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    delta_omega <span class="op">=</span> np.<span class="bu">abs</span>(np.cos(dec)) <span class="op">*</span> np.sqrt(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        sigma_ra<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> sigma_dec<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> cov_ra_dec<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span> delta_omega <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (<span class="dv">180</span><span class="op">/</span>np.pi)<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> <span class="fl">.9</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>sigma_ra <span class="op">=</span> <span class="fl">0.0279</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>sigma_dec <span class="op">=</span> <span class="fl">0.0377</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>cov_ra_dec <span class="op">=</span> <span class="op">-</span><span class="fl">0.00084</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dec <span class="op">=</span> <span class="op">-</span><span class="fl">0.354</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>ra <span class="op">=</span> <span class="fl">3.419</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'The 90% localization area for GW170817, in the Gaussian approximation, </span><span class="ch">\n</span><span class="ss">'</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'is </span><span class="sc">{</span>ninety_percent_region(sigma_ra, sigma_dec, cov_ra_dec, dec)<span class="sc">:.0f}</span><span class="ss"> square degrees'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The 90% localization area for GW170817, in the Gaussian approximation, 
+is 28 square degrees</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+GW150914 comparison
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The errors given before were for the neutron star binary GW170817, but things change somewhat in the case of a black hole binary. Here I show the case of GW150914. One can see that here, due to the much smaller number of cycles in band, the chirp mass is not better-measured than the total mass. Also, given the large sky area and the fact that this was a two-detector event, the Gaussian approximation fails in computing the sky area.</p>
+<div class="cell" data-execution_count="2">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> h5py</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_posterior_statistics(data_dict):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    data_dict[<span class="st">'mchirp'</span>] <span class="op">=</span> (</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        data_dict[<span class="st">'mass1_det'</span>] <span class="op">*</span> data_dict[<span class="st">'mass2_det'</span>]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        )<span class="op">**</span>(<span class="dv">3</span><span class="op">/</span><span class="dv">5</span>) <span class="op">/</span> (data_dict[<span class="st">'mass1_det'</span>] <span class="op">+</span> data_dict[<span class="st">'mass2_det'</span>])<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">5</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    data_dict[<span class="st">'mtot'</span>] <span class="op">=</span> (</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        data_dict[<span class="st">'mass1_det'</span>] <span class="op">+</span> data_dict[<span class="st">'mass2_det'</span>]</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    units_errors <span class="op">=</span> {</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">'time'</span>: <span class="st">'s'</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">'right_ascension'</span>: <span class="st">'rad'</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">'declination'</span>: <span class="st">'rad'</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">'theta_jn'</span>: <span class="st">'rad'</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key <span class="kw">in</span> data_dict:</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> data_dict[key]</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> key <span class="kw">in</span> units_errors:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f'sigma_</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">: '</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f'</span><span class="sc">{</span>np<span class="sc">.</span>std(data)<span class="sc">:.3f}</span><span class="ss"> </span><span class="sc">{</span>units_errors[key]<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f'sigma_</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss"> / </span><span class="sc">{</span>key<span class="sc">}</span><span class="ss">: '</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f'</span><span class="sc">{</span>np<span class="sc">.</span>std(data) <span class="op">/</span> np<span class="sc">.</span>median(data)<span class="sc">:.3f}</span><span class="ss">'</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    region <span class="op">=</span> ninety_percent_region(</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            np.std(data_dict[<span class="st">"right_ascension"</span>]), </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>            np.std(data_dict[<span class="st">"declination"</span>]), </span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            np.cov(</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                data_dict[<span class="st">"right_ascension"</span>],</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>                data_dict[<span class="st">"declination"</span>],</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>            )[<span class="dv">0</span>, <span class="dv">1</span>], </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>            np.median(data_dict[<span class="st">"declination"</span>]))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'The 90% localization area for GW150914, in the Gaussian approximation, </span><span class="ch">\n</span><span class="ss">'</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'is </span><span class="sc">{</span>region<span class="sc">:.0f}</span><span class="ss"> square degrees, </span><span class="ch">\n</span><span class="ss">'</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        <span class="st">'while the true one was approximately 600 square degrees'</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> h5py.File(<span class="st">'../data/GW150914_data.h5'</span>)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> f[<span class="st">'overall_post'</span>]</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    data_dict <span class="op">=</span> {}</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key <span class="kw">in</span> dataset.dtype.fields.keys():</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>        data_dict[key] <span class="op">=</span> dataset[key]</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    print_posterior_statistics(data_dict)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">FileNotFoundError</span>:</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'GW150914 posterior not available - download it from https://dcc.ligo.org/LIGO-T1800235/public'</span>)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'and save it to the data/ folder as "GW150914_data.h5"'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>sigma_a1 / a1: 0.707
+sigma_a2 / a2: 0.608
+sigma_distance / distance: 0.235
+sigma_theta_jn: 0.507 rad
+sigma_time: 0.003 s
+sigma_mass1_det / mass1_det: 0.075
+sigma_right_ascension: 0.560 rad
+sigma_mass2_det / mass2_det: 0.087
+sigma_declination: 0.197 rad
+sigma_mchirp / mchirp: 0.035
+sigma_mtot / mtot: 0.033
+The 90% localization area for GW150914, in the Gaussian approximation, 
+is 1800 square degrees, 
+while the true one was approximately 600 square degrees</code></pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="correlation-structure" class="level3">
+<h3 class="anchored" data-anchor-id="correlation-structure">Correlation structure</h3>
+<p>For each pair of parameters <span class="math inline">\(\theta_i\)</span>, <span class="math inline">\(\theta_j\)</span> we select after running a parameter estimation job, we will be able to compute their correlation coefficient, which is their correlation normalized to their standard deviations: <span class="math display">\[ \rho_{ij} = \frac{\operatorname{cov}(\theta _i, \theta_j)}{\sigma_i \sigma_j}
+\]</span></p>
+<p>This number will always lie between -1 and 1, with values near these extremes representing near-perfect (anti)correlation, while values near 0 represent uncorrelated variables. This only captures <em>linear</em> correlations, so it does not tell the whole story, but it is still quite useful in understanding which parameters are generally to be understood as correlated or not.</p>
+<div class="cell" data-execution_count="3">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># we start from the covariance matrix for an analysis of GW170817</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this is included in the auxiliary data for convenience</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.colors <span class="im">import</span> Normalize</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.cm <span class="im">import</span> ScalarMappable</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> ticker</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_correlations(cov, symbols):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(symbols)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    sigmas <span class="op">=</span> np.sqrt(np.diagonal(cov))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    correlations <span class="op">=</span> cov <span class="op">/</span> np.kron(sigmas, sigmas).reshape(n, n)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    cmap <span class="op">=</span> plt.get_cmap(<span class="st">'RdBu'</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    normalization <span class="op">=</span> Normalize(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    axes.matshow(correlations, cmap<span class="op">=</span>cmap, norm<span class="op">=</span>normalization)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> axis <span class="kw">in</span> [axes.xaxis, axes.yaxis]:</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        axis.set_major_locator(ticker.FixedLocator(np.arange(n)))</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        axis.set_major_formatter(ticker.FixedFormatter(symbols))</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    plt.colorbar(ScalarMappable(cmap<span class="op">=</span>cmap, norm<span class="op">=</span>normalization), ax<span class="op">=</span>axes)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>symbols <span class="op">=</span> [</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">mathcal</span><span class="sc">{M}</span><span class="st">$'</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$q$'</span>,</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">chi_1$'</span>,</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">chi_2$'</span>,</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">Lambda_1$'</span>,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">Lambda_2$'</span>,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$d_L$'</span>,</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">cos </span><span class="ch">\\</span><span class="st">iota$'</span>,</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ra'</span>,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">'dec'</span>,</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$\psi$'</span>,</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$c_</span><span class="sc">{AL1}</span><span class="st">$'</span>,</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$c_{\phi L1}$'</span>,</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> np.loadtxt(<span class="st">'../data/covariance_170817.txt'</span>)</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>plot_correlations(cov, symbols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-correlation-matrix" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="fisher-explanation_files/figure-html/fig-correlation-matrix-output-1.png" width="611" height="494" class="figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: Correlations between some measured parameters for GW170817. <span class="math inline">\(c_{AL1}\)</span> and <span class="math inline">\(c_{\phi L1}\)</span> are two calibration parameters for the Livingston detector, included for reference, out of the <span class="math inline">\(\sim\)</span> 12 calibration parameters per detector used in real analyses. Arrival time and overall phase are not included since they were analytically marginalized in this particular analysis.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In <a href="#fig-correlation-matrix">Figure&nbsp;1</a> we see the structure of the correlation matrix for an actual analysis of GW170817 (specifically, the one from <span class="citation" data-cites="tissinoCombiningEffectiveonebodyAccuracy2022">Tissino et al. (<a href="#ref-tissinoCombiningEffectiveonebodyAccuracy2022" role="doc-biblioref">2022</a>)</span>).</p>
+<p>Note the important qualitative feature that the extrinsic parameters are overall uncorrelated from the intrinsic ones. This is qualitatively due to the fact that the extrinsic parameters are generally measured by <em>inter-detector</em> amplitude and time of arrival <em>differences</em>, while intrinsic parameters are generally measured by <em>averages</em> of amplitude and phase <span class="citation" data-cites="singerRapidBayesianPosition2016">(<a href="#ref-singerRapidBayesianPosition2016" role="doc-biblioref">Singer and Price 2016</a>)</span>.</p>
+<div class="cell" data-execution_count="4">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>symbols <span class="op">=</span> np.array([</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">mathcal</span><span class="sc">{M}</span><span class="st">$'</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">eta$'</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$d_L$'</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">theta$'</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ra'</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">iota$'</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">psi$'</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$t_{</span><span class="ch">\\</span><span class="st">mathrm</span><span class="sc">{coal}</span><span class="st">}$'</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">phi_{</span><span class="ch">\\</span><span class="st">mathrm</span><span class="sc">{coal}</span><span class="st">}$'</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">chi_</span><span class="sc">{1z}</span><span class="st">$'</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">chi_</span><span class="sc">{2z}</span><span class="st">$'</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'$</span><span class="ch">\\</span><span class="st">widetilde{</span><span class="ch">\\</span><span class="st">Lambda}$'</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>cov <span class="op">=</span> np.loadtxt(<span class="st">'../data/gwfast_covariance.txt'</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>reshuffle <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>plot_correlations(cov[np.ix_(reshuffle, reshuffle)], symbols[reshuffle])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="fisher-explanation_files/figure-html/cell-5-output-1.png" width="610" height="495"></p>
+</div>
+</div>
+</section>
+<section id="antenna-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="antenna-pattern">Antenna pattern</h3>
+<p>The strain at the detector, <span class="math inline">\(h(t)\)</span>, depends on the gravitational-wave strain <span class="math inline">\(h_{ij}(t)\)</span> through contraction with a <strong>detection tensor</strong> <span class="math inline">\(D_{ij}\)</span>, which depends on the orientation and shape of the detector’s arms: <span class="math display">\[ h(t) = h_{ij} (t) D_{ij}(t)\,.
+\]</span></p>
+<p>For current detectors the time dependence of <span class="math inline">\(D_{ij}\)</span> is negligible, since the signal is in band for minutes at most, while for ET this will have to be taken into account. The Fisher matrix is typically computed in the frequency domain, which makes the computation trickier, but still feasible (see section 3.2 of <span class="citation" data-cites="iacovelliForecastingDetectionCapabilities2022">Iacovelli et al. (<a href="#ref-iacovelliForecastingDetectionCapabilities2022" role="doc-biblioref">2022</a>)</span> for more details).</p>
+</section>
+</section>
+<section id="fisher-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="fisher-matrix">Fisher matrix</h2>
+<p>In the Fisher matrix approximation, we are considering the gravitational wave likelihood as if it was written like</p>
+<p><span class="math display">\[ \mathcal{L}(d | \theta) \approx \mathcal{N} \exp \left(- \frac{1}{2} \Delta \theta^i \mathcal{F}_{ij} \Delta \theta^j \right)
+\]</span></p>
+<p>for some normalization <span class="math inline">\(\mathcal{N}\)</span>, where <span class="math inline">\(\Delta \theta^i = \theta ^i - \langle \theta ^i \rangle\)</span> denotes the deviation of the parameters from their mean values and where we are using the Einstein summation convention.</p>
+<p>This is the expression of a multivariate normal distribution, with covariance matrix <span class="math inline">\(\mathcal{C}_{ij} = \mathcal{F}_{ij}^{-1}\)</span>.</p>
+<p>The Fisher matrix <span class="math inline">\(\mathcal{F}_{ij}\)</span> can be computed as the scalar product of the derivatives of waveforms: <span class="math display">\[ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{n = 0,\ \theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
+\]</span></p>
+<p>These derivatives may be computed numerically or analytically (<span class="citation" data-cites="dupletsaGwfishSimulationSoftware2023">Dupletsa et al. (<a href="#ref-dupletsaGwfishSimulationSoftware2023" role="doc-biblioref">2023</a>)</span>, <span class="citation" data-cites="iacovelliForecastingDetectionCapabilities2022">Iacovelli et al. (<a href="#ref-iacovelliForecastingDetectionCapabilities2022" role="doc-biblioref">2022</a>)</span>). Crucially, the computation is quite fast, typically taking less than a second.</p>
+<section id="derivation" class="level3">
+<h3 class="anchored" data-anchor-id="derivation">Derivation</h3>
+<p>For a more in-depth derivation refer to <span class="citation" data-cites="finnDetectionMeasurementGravitational1992a">Finn (<a href="#ref-finnDetectionMeasurementGravitational1992a" role="doc-biblioref">1992</a>)</span>; here we just give a simple argument. We can rewrite the derivatives of the log-likelihood as follows:</p>
+<p><span class="math display">\[ \begin{aligned}
+\partial_i \partial_j \log \mathcal{L} &amp;= \frac{1}{2} \partial_i \partial_j (d-h|d-h) \\
+&amp;= \frac{1}{2} \partial_i \partial_j \left((d|d) - 2 (d|h) + (h|h)\right) \\
+&amp;=  \partial_i \left(-  (d|\partial_j h) + (\partial_j h|h)\right) \\
+&amp;=  \left(-  (d|\partial_i \partial_j h) + (\partial_i \partial_j h|h) + (\partial_i h | \partial_j h)\right) \\
+&amp;=  -(n|\partial_i \partial_j h)  + (\partial_i h | \partial_j h)
+\end{aligned}
+\]</span></p>
+<p>and then, since we are evaluating this quantity at the maximum-likelihood realization of the noise <span class="math inline">\(n = 0\)</span>, the term <span class="math inline">\((n|\partial_i \partial_j h)\)</span> is equal to zero.</p>
+</section>
+<section id="conditioning-versus-marginalizing" class="level3">
+<h3 class="anchored" data-anchor-id="conditioning-versus-marginalizing">Conditioning versus marginalizing</h3>
+<p>It is important to include all parameters when performing a Fisher matrix analysis. This is because not including a parameter which correlates to the one we care about in the Fisher analysis is equivalent to <strong>conditioning</strong> upon it having that specific value, while the correct operation to be performed is <strong>marginalizing</strong> over all possible values.</p>
+<p>Here is a graphical way to see the difference between conditioning and marginalizing for correlated variables.</p>
+<div class="cell" data-execution_count="5">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multivariate_normal <span class="im">import</span> MultivariateNormal</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> MultivariateNormal([<span class="dv">0</span>, <span class="dv">0</span>], [[<span class="dv">1</span>, <span class="fl">0.8</span>], [<span class="fl">0.8</span>, <span class="dv">1</span>]])</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>n.plot_2d_analytical(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">.9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="fisher-explanation_files/figure-html/cell-6-output-1.png" width="719" height="712"></p>
+</div>
+</div>
+<p>When dealing with the <em>correlation matrix</em> marginalizing simply amounts to ignoring some parameters, but crucially in the <em>Fisher matrix</em> this is not the case, since the inversion introduces mixing between the parameters.</p>
+<!-- ## References -->
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-babakSearchingGravitationalWaves2013" class="csl-entry" role="listitem">
+Babak, S., R. Biswas, P. R. Brady, D. A. Brown, K. Cannon, C. D. Capano, J. H. Clayton, et al. 2013. <span>“Searching for Gravitational Waves from Binary Coalescence.”</span> <em>Physical Review D</em> 87 (2): 024033. <a href="https://doi.org/10.1103/PhysRevD.87.024033">https://doi.org/10.1103/PhysRevD.87.024033</a>.
+</div>
+<div id="ref-theligoscientificcollaborationPropertiesBinaryNeutron2019" class="csl-entry" role="listitem">
+Collaboration, The LIGO Scientific, the Virgo Collaboration, B. P. Abbott, R. Abbott, T. D. Abbott, F. Acernese, K. Ackley, et al. 2019. <span>“Properties of the Binary Neutron Star Merger <span>GW170817</span>.”</span> <em>Physical Review X</em> 9 (1): 011001. <a href="https://doi.org/10.1103/PhysRevX.9.011001">https://doi.org/10.1103/PhysRevX.9.011001</a>.
+</div>
+<div id="ref-damourMeasurabilityTidalPolarizability2012" class="csl-entry" role="listitem">
+Damour, Thibault, Alessandro Nagar, and Loic Villain. 2012. <span>“Measurability of the Tidal Polarizability of Neutron Stars in Late-Inspiral Gravitational-Wave Signals.”</span> <em>Physical Review D</em> 85 (12): 123007. <a href="https://doi.org/10.1103/PhysRevD.85.123007">https://doi.org/10.1103/PhysRevD.85.123007</a>.
+</div>
+<div id="ref-dupletsaGwfishSimulationSoftware2023" class="csl-entry" role="listitem">
+Dupletsa, U., J. Harms, B. Banerjee, M. Branchesi, B. Goncharov, A. Maselli, A. C. S. Oliveira, S. Ronchini, and J. Tissino. 2023. <span>“Gwfish: <span>A</span> Simulation Software to Evaluate Parameter-Estimation Capabilities of Gravitational-Wave Detector Networks.”</span> <em>Astronomy and Computing</em> 42 (January): 100671. <a href="https://doi.org/10.1016/j.ascom.2022.100671">https://doi.org/10.1016/j.ascom.2022.100671</a>.
+</div>
+<div id="ref-finnDetectionMeasurementGravitational1992a" class="csl-entry" role="listitem">
+Finn, Lee Samuel. 1992. <span>“Detection, <span>Measurement</span> and <span>Gravitational Radiation</span>.”</span> <em>Physical Review D</em> 46 (12): 5236–49. <a href="https://doi.org/10.1103/PhysRevD.46.5236">https://doi.org/10.1103/PhysRevD.46.5236</a>.
+</div>
+<div id="ref-iacovelliForecastingDetectionCapabilities2022" class="csl-entry" role="listitem">
+Iacovelli, Francesco, Michele Mancarella, Stefano Foffa, and Michele Maggiore. 2022. <span>“Forecasting the Detection Capabilities of Third-Generation Gravitational-Wave Detectors Using $\Texttt{}<span>GWFAST</span>{}$.”</span> September 27, 2022. <a href="https://doi.org/10.48550/arXiv.2207.02771">https://doi.org/10.48550/arXiv.2207.02771</a>.
+</div>
+<div id="ref-lynchObservationalImplicationsLowering2018" class="csl-entry" role="listitem">
+Lynch, Ryan, Michael Coughlin, Salvatore Vitale, Christopher W. Stubbs, and Erik Katsavounidis. 2018. <span>“Observational Implications of Lowering the <span>LIGO-Virgo</span> Alert Threshold.”</span> <em>The Astrophysical Journal</em> 861 (2): L24. <a href="https://doi.org/10.3847/2041-8213/aacf9f">https://doi.org/10.3847/2041-8213/aacf9f</a>.
+</div>
+<div id="ref-nitzRapidDetectionGravitational2018" class="csl-entry" role="listitem">
+Nitz, Alexander H., Tito Dal Canton, Derek Davis, and Steven Reyes. 2018. <span>“Rapid Detection of Gravitational Waves from Compact Binary Mergers with <span>PyCBC Live</span>.”</span> <em>Physical Review D</em> 98 (July): 024050. <a href="https://doi.org/10.1103/PhysRevD.98.024050">https://doi.org/10.1103/PhysRevD.98.024050</a>.
+</div>
+<div id="ref-singerRapidBayesianPosition2016" class="csl-entry" role="listitem">
+Singer, Leo P., and Larry R. Price. 2016. <span>“Rapid <span>Bayesian</span> Position Reconstruction for Gravitational-Wave Transients.”</span> <em>Physical Review D</em> 93 (2): 024013. <a href="https://doi.org/10.1103/PhysRevD.93.024013">https://doi.org/10.1103/PhysRevD.93.024013</a>.
+</div>
+<div id="ref-tissinoCombiningEffectiveonebodyAccuracy2022" class="csl-entry" role="listitem">
+Tissino, Jacopo, Gregorio Carullo, Matteo Breschi, Rossella Gamba, Stefano Schmidt, and Sebastiano Bernuzzi. 2022. <span>“Combining Effective-One-Body Accuracy and Reduced-Order-Quadrature Speed for Binary Neutron Star Merger Parameter Estimation with Machine Learning.”</span> October 27, 2022. <a href="https://doi.org/10.48550/arXiv.2210.15684">https://doi.org/10.48550/arXiv.2210.15684</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,2 +1,5 @@
 notebooks/.ipynb_checkpoints
 .DS_Store
+**/__pycache__/*
+GW150914_data.h5
+introduction/*_files/*

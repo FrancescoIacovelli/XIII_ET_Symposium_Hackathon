@@ -1,0 +1,159 @@
+import numpy as np
+from scipy.stats import norm
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from numpy.random import default_rng
+
+class MultivariateNormal():
+    """
+    A Multivariate Normal Distribution.
+    """
+
+    number_points = 200
+    number_sigmas = 3
+
+    def __init__(self, mean, cov):
+
+        self.mean = np.atleast_1d(mean)
+        self.cov = np.atleast_2d(cov)
+        self.dim = self.mean.shape[0]
+
+        self.normalization = (2 * np.pi)**(-self.dim / 2) / \
+            np.sqrt(np.linalg.det(self.cov))
+        self.precision_matrix = np.linalg.inv(self.cov)
+
+    def __str__(self):
+        return (f'{self.dim}-dimensional MVN with mean {self.mean} and covariance {self.cov}')
+
+    def __repr__(self):
+        return (f'MultivariateNormal({self.mean}, {self.cov})')
+    
+    def pdf(self, x):
+        shifted_arg = x - self.mean
+        argument = np.sum(
+            (shifted_arg) @ self.precision_matrix * (shifted_arg), axis=-1)
+
+        return self.normalization * np.exp(- argument / 2.)
+
+    def marginalize(self, index):
+        # not very general! we are only able to marginalize down
+        # to one parameter right now
+
+        # the generalization is simple conceptually (take the submatrix of self.cov)
+        # but may make the code quite complicated
+        
+        marginal_mean = self.mean[index, np.newaxis]
+        marginal_cov = self.cov[index, index, np.newaxis, np.newaxis]
+        return self.__class__(marginal_mean, marginal_cov)
+
+    def condition(self, index, condition_other_params):
+        precision_matrix = np.linalg.inv(self.cov)
+        conditioned_cov = np.linalg.inv(
+            precision_matrix[index, index, np.newaxis, np.newaxis])
+
+        cross_precision = np.delete(
+            precision_matrix, index, axis=-1)[index, np.newaxis, :]
+
+        mean_other_params = np.delete(self.mean, index, -1)
+        mean_correction = conditioned_cov @ cross_precision @ (
+            condition_other_params - mean_other_params)
+
+        conditioned_mean = self.mean[index, np.newaxis] - mean_correction
+
+        return self.__class__(conditioned_mean, conditioned_cov)
+
+    @staticmethod
+    def _analytical_CI(mean, std, percentage):
+        number_sigmas = norm.ppf((percentage + 1)/2)
+        delta = number_sigmas * std
+        return (mean - delta, mean + delta)
+    
+    def analytical_CI(self, percentage):
+        
+        if self.dim != 1:
+            print('This only applies to univariate normals!')
+        
+        mean = self.mean.flatten()[0]
+        std = np.sqrt(self.cov.flatten()[0])
+        return self._analytical_CI(mean, std, percentage)
+    
+    @property
+    def coordinate_arrays(self):
+        number_points = type(self).number_points
+        number_sigmas = type(self).number_sigmas
+        
+        sigmas = np.sqrt(np.diagonal(self.cov))
+        starts = self.mean - number_sigmas * sigmas
+        ends = self.mean + number_sigmas * sigmas
+        return(np.linspace(starts, ends, num=number_points).T)
+    
+    @property
+    def cholesky_L(self):
+        return (np.linalg.cholesky(self.cov))
+        
+    def cholesky_sample(self, number_samples=1, seed=None):
+        rng = default_rng(seed)
+        independent_deviates = rng.standard_normal(size=(self.dim, number_samples))
+        correlated_deviates = (self.cholesky_L @ independent_deviates).T
+        return correlated_deviates + self.mean[np.newaxis, :]
+
+    def plot_2d_analytical(self, chosen_x, chosen_y, CL):
+
+        if self.dim != 2:
+            print('This only applies to bivariate normals!')
+            return None
+
+        marginal_x = self.marginalize(0)
+        marginal_y = self.marginalize(1)
+
+        conditioned_x = self.condition(0, chosen_y)
+        conditioned_y = self.condition(1, chosen_x)
+
+        x_array, y_array = self.coordinate_arrays
+        x, y = np.meshgrid(x_array, y_array)
+        positions = np.stack((x, y), axis=-1)
+        z = self.pdf(positions)
+        
+        mx_interval = marginal_x.analytical_CI(CL)
+        my_interval = marginal_y.analytical_CI(CL)
+        cx_interval = conditioned_x.analytical_CI(CL)
+        cy_interval = conditioned_y.analytical_CI(CL)
+        
+        fig = plt.figure(figsize=(9, 9))
+        gs = gridspec.GridSpec(
+            2, 2, width_ratios=[2, 1], height_ratios=[1, 2])
+
+        ax1 = plt.subplot(gs[0])
+
+        cmap = plt.get_cmap('plasma')
+        c_marginal = cmap(0.)
+        c_conditioned = cmap(.6)
+        line_mx, = ax1.plot(x_array, marginal_x.pdf(
+            x_array[:, np.newaxis]), label='Marginal', c=c_marginal)
+        line_cx, = ax1.plot(x_array, conditioned_x.pdf(
+            x_array[:, np.newaxis]), label='Conditioned', c=c_conditioned)
+        [ax1.axvline(x=mx_value, c=line_mx._color, ls='--') for mx_value in mx_interval]
+        [ax1.axvline(x=cx_value, c=line_cx._color, ls='--') for cx_value in cx_interval]
+        ax1.legend()
+
+        ax4 = plt.subplot(gs[3])
+        line_my, = ax4.plot(marginal_y.pdf(
+            y_array[:, np.newaxis]), y_array, label='Marginal', c=c_marginal)
+        line_cy, = ax4.plot(conditioned_y.pdf(
+            y_array[:, np.newaxis]), y_array, label='Conditioned', c=c_conditioned)
+        [ax4.axhline(y=my_value, ls='--', c=line_my._color) for my_value in my_interval]
+        [ax4.axhline(y=cy_value, ls='--', c=line_cy._color) for cy_value in cy_interval]
+        ax4.legend()
+
+        ax3 = plt.subplot(gs[2], sharex=ax1, sharey=ax4)
+        colors = ax3.contourf(x, y, z, cmap=cmap, levels=20)
+        ax3.axvline(chosen_x, c='white', ls='--')
+        ax3.axhline(chosen_y, c='white', ls='--')
+
+        ax2 = plt.subplot(gs[1])
+        ax2.set_visible(False)
+        divider = make_axes_locatable(ax2)
+        cax = divider.append_axes('left', size='20%', pad=0.05)
+        cbar = fig.colorbar(colors, cax=cax)
+        cbar.ax.set_ylabel('Probability density')
