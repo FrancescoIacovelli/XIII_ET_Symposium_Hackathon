@@ -7,6 +7,12 @@ Here you can find a collection of tutorial jupyter notebooks used during the hak
 
 Developed by [Ulyana Dupletsa](<https://github.com/u-dupletsa>), [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>) and [Jacopo Tissino](<https://github.com/jacopok>).
 
+## Introduction
+
+The pdf slides are available in this repository, at [this link](https://github.com/FrancescoIacovelli/XIII_ET_Symposium_Hakathon/blob/main/introduction/fisher-presentation.pdf).
+
+The extended introduction is viewable as an html page at [this link](http://htmlpreview.github.io/?https://github.com/FrancescoIacovelli/XIII_ET_Symposium_Hakathon/blob/main/introduction/fisher-explanation.html).
+
 ## Open in Google Colab
 
 Each notebook can be easily opened in Google Colab without the need to download locally any package. Here you can fing the links to open each notebook
