@@ -2,7 +2,7 @@
 
 ![alt text](<https://www.et-gw.eu/images/et-new-logo.png>)
 
-# XIII ET Symposium Hakathon
+# XIII ET Symposium Hackathon
 Here you can find a collection of tutorial jupyter notebooks used during the hakathon session of the XIII ET Symposium to introduce some of the codes developed within the activities of the Division 9 of the ET Observational Science Board.
 
 Developed by [Ulyana Dupletsa](<https://github.com/u-dupletsa>), [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>) and [Jacopo Tissino](<https://github.com/jacopok>).
