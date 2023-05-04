@@ -10,7 +10,7 @@ format:
 
 ![](../data/logo.png){fig-align="center"}
 
-> When we build Einstein Telescope, how many compact binary signals will it be able to see?
+> When we build Einstein Telescope, how many compact binary signals will it be able to detect?
 > How well will it localize them in the sky?
 > How well will it measure their parameters, such as the radii of neutron stars?
 
@@ -107,10 +107,11 @@ per year only requires us to raise the threshold to $\rho = 9.4$.
 For the purposes of forecasting, then, what SNR threshold should we consider 
 as the minimum for detectability?
 We cannot know yet which glitches will affect our future detector, but 
-we can safely say that a threshold in the range of 8 to 10 is probably 
-acceptable.
+we can safely say that a threshold in the range of 8 to 12 is probably 
+acceptable - the changes in detection horizon associated with different thresholds in 
+this range are comparatively small, while the false alarm rate decreases exponentially.
 
-This quantity is easy to estimate and not too dependent on the 
+The SNR is easy to estimate and not too dependent on the 
 specifics of the waveform model: for one, it discards all phase information:
 
 $$ \text{SNR} = 2 \sqrt{\int_0^\infty \frac{|h(f)|^2}{S_n(f)} \text{d}f}
@@ -204,7 +205,17 @@ A source for which $\iota$ is close to zero or to $\pi$ is said to be _face-on_,
 while a source for which $\iota$ is close to $\pi/2$ is said to be _edge-on_.
 
 This parameter degenerates with the distance since both affect the amplitude;
-for the latter, the two polarizations for the highest-order spherical harmonic of gravitational wave emission scale like $h_+ \propto (1 + \cos^2 \iota)$ and $h_\times \propto \cos \iota$. 
+for the latter, the two polarizations for the highest-order spherical harmonic of gravitational wave emission scale like $h_+ \propto (1 + \cos^2 \iota)$ and $h_\times \propto \cos \iota$.
+
+If we account for more harmonics (or, as they are more commonly referred to, __higher order modes__) the 
+signal's dependence on the inclination angle $\iota$ becomes more complex, and this may help in breaking the degeneracy.
+
+In full generality, the waveform is given by 
+
+$$ h(t) = \sum_{\ell \geq 2} \sum _{|m| \leq \ell} h_{\ell m}(t) ^{(-2)}Y_{\ell m} (\iota, \phi)
+$$
+
+where the functions $^{(-2)}Y_{\ell m} (\iota, \phi)$ are called the _spin-weighted spherical harmonics_ [@ajithDataFormatsNumerical2011]. The $\ell = 2$, $m = \pm 2$ contribution is the aforementioned dominant one.
 
 The remaining extrinsic parameters
 are the __arrival time__ at geocenter $t_\oplus$, the overall free __phase__ $\phi$, the __polarization__
@@ -319,7 +330,7 @@ except FileNotFoundError:
 ### Correlation structure
 
 For each pair of parameters $\theta_i$, $\theta_j$ we select after running a parameter estimation job,
-we will be able to compute their correlation coefficient, which is their correlation normalized to their standard deviations:
+we will be able to compute their Pearson correlation coefficient, which is their correlation normalized to their standard deviations:
 $$ \rho_{ij} = \frac{\operatorname{cov}(\theta _i, \theta_j)}{\sigma_i \sigma_j}
 $$
 
@@ -416,7 +427,7 @@ plot_correlations(cov[np.ix_(reshuffle, reshuffle)], symbols[reshuffle])
 The strain at the detector, $h(t)$, depends on the gravitational-wave
 strain $h_{ij}(t)$ through contraction with a __detection tensor__ $D_{ij}$,
 which depends on the orientation and shape of the detector's arms: 
-$$ h(t) = h_{ij} (t) D_{ij}(t)\,.
+$$ h(t) = h_{ij} (t) D_{ij}(t) = h_+ (t) F_+ (t) + h_\times (t) F_\times (t) \,.
 $$
 
 For current detectors the time dependence of $D_{ij}$ is negligible, 
@@ -425,6 +436,82 @@ this will have to be taken into account.
 The Fisher matrix is typically computed in the frequency domain, which makes 
 the computation trickier, but still feasible (see section 3.2 of
 @iacovelliForecastingDetectionCapabilities2022 for more details).
+
+```{python}
+from antenna_patterns import plot_antenna_pattern
+```
+
+::: {.panel-tabset}
+
+### Virgo
+
+```{python}
+#| fig-label: fig-antenna-pattern-V1
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the Virgo detector.
+
+plot_antenna_pattern('V1')
+```
+
+### Hanford
+
+
+```{python}
+#| fig-label: fig-antenna-pattern-H1
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the LIGO Hanford detector.
+
+plot_antenna_pattern('H1')
+```
+
+### Livingston
+
+
+```{python}
+#| fig-label: fig-antenna-pattern-L1
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the LIGO Livingston detector.
+
+plot_antenna_pattern('L1')
+```
+
+### Kagra
+
+```{python}
+#| fig-label: fig-antenna-pattern-K!
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the Kagra detector.
+
+plot_antenna_pattern('K1')
+```
+
+### ET-1
+
+
+```{python}
+#| fig-label: fig-antenna-pattern-ET1
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the ET-1 detector.
+
+plot_antenna_pattern('E1')
+```
+
+### ET-2
+
+```{python}
+#| fig-label: fig-antenna-pattern-ET2
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the ET-2 detector.
+
+plot_antenna_pattern('E2')
+```
+
+### ET-3
+
+
+```{python}
+#| fig-label: fig-antenna-pattern-ET3
+#| fig-cap: A plot of $\sqrt{F_+^2 + F_\times^2}$ for the ET-3 detector.
+
+plot_antenna_pattern('E3')
+```
+
+:::
+
 
 ## Fisher matrix
 
@@ -440,11 +527,17 @@ This is the expression of a multivariate normal distribution, with covariance ma
 
 The Fisher matrix $\mathcal{F}_{ij}$ can be computed as the scalar product
 of the derivatives of waveforms: 
-$$ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{n = 0,\ \theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
+$$ \mathcal{F}_{ij} = \left.\left\langle \partial_i \partial_j \mathcal{L} \right\rangle \right|_{\theta = \langle \theta \rangle} =  ( \partial_i h | \partial_j h ) = \Re \int_0^{\infty} \frac{1}{S_n(f)}  \frac{\partial h}{\partial \theta _i} \frac{\partial h^*}{\partial \theta _j}\text{d}f\,.
 $$
 
 These derivatives may be computed numerically or analytically (@dupletsaGwfishSimulationSoftware2023, @iacovelliForecastingDetectionCapabilities2022).
-Crucially, the computation is quite fast, typically taking less than a second.
+Crucially, the computation is quite fast, typically taking on the order of seconds.
+
+In the case of multiple detectors, we can compute the _network_ Fisher matrix by adding the 
+single-detector ones:
+
+$$ \mathcal{F}_{ij} = \sum_{k = 1}^N \mathcal{F}_{ij}^{(k)} 
+$$
 
 ### Derivation
 
@@ -460,9 +553,7 @@ $$ \begin{aligned}
 \end{aligned}
 $$
 
-and then, since we are evaluating this quantity at the maximum-likelihood realization of the noise $n = 0$, the term $(n|\partial_i \partial_j h)$ is equal to zero.
-
-
+and then, across all noise realizations, the term $(n|\partial_i \partial_j h)$ is equal to zero on average.
 
 ### Conditioning versus marginalizing
 
