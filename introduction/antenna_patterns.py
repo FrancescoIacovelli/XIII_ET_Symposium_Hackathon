@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 from pycbc.detector import Detector
-import healpy as hp
 from astropy.time import Time
 import cartopy.crs as ccrs
 import cartopy.util as cutil
@@ -55,5 +54,8 @@ def plot_antenna_pattern(detector_name):
         ScalarMappable(cmap=cmap, norm=normalization), 
         ax=ax,
         label='$\\sqrt{F_{+}^2+F_{\\times}^2}$')
+    
+    # uncomment to overplot a star corresponding to the detector location
     # ax.scatter(np.rad2deg(det.longitude), np.rad2deg(det.latitude), c='blue', marker='*', s=400, transform=ccrs.PlateCarree())
+    
     plt.show()

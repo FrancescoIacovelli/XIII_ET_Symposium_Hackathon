@@ -416,6 +416,9 @@ symbols = np.array([
 
 cov = np.loadtxt('../data/gwfast_covariance.txt')
 
+# the Fisher matrix computed with GWfast was ordered 
+# in a different way from the one before - this 
+# is just a reordering of the parameters
 reshuffle = [0, 1, 9, 10, 11, 2, 5, 3, 4, 6, 7, 8]
 
 plot_correlations(cov[np.ix_(reshuffle, reshuffle)], symbols[reshuffle])
@@ -436,6 +439,12 @@ this will have to be taken into account.
 The Fisher matrix is typically computed in the frequency domain, which makes 
 the computation trickier, but still feasible (see section 3.2 of
 @iacovelliForecastingDetectionCapabilities2022 for more details).
+
+In the following plot, we show the root-mean-square antenna pattern
+for several detectors: the current LVK network and ET.
+The ET pattern does not reach the highest values due to the angle between
+its arms: the optimal value of $\sqrt{F_+^2 + F_\times^2} = 1$ can only be
+achieved with orthogonal ones.
 
 ```{python}
 from antenna_patterns import plot_antenna_pattern
@@ -576,4 +585,3 @@ simply amounts to ignoring some parameters, but crucially
 in the _Fisher matrix_ this is not the case, since the 
 inversion introduces mixing between the parameters.
 
-<!-- ## References -->
