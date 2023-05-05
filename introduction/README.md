@@ -10,7 +10,7 @@ alternatively, an easy way to create a virtual environment and have everything
 that's required there is to install [`poetry`](https://python-poetry.org/)
 and run `poetry shell` followed by `poetry install`.
 
-In order to generate the html explanation, after installing quarto run:
+In order to generate the html explanation, after [installing quarto](https://quarto.org/docs/get-started/) run:
 
 `quarto render fisher-explanation.qmd`
 
