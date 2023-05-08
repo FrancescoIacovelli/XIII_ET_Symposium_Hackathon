@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "introduction"
+version = "0.1.0"
+description = "Introductio to the Hackathon session in the XIII ET Symposium"
+authors = ["jacopok <jacopok@gmail.com>"]
+license = "GPL3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <3.12"
+numpy = "^1.24.3"
+PyCBC = "^2.2.0"
+matplotlib = "^3.7.1"
+Cartopy = "^0.21.1"
+healpy = "^1.16.2"
+astropy = "^5.2.2"
+scipy = "^1.10.1"
+jupyter = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
